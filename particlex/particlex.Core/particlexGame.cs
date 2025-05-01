@@ -14,17 +14,21 @@ namespace particlex.Core
 {
     public class particlexGame : Game
     {
+        // todo: move to configuration
+        private const int GRID_SIZE = 2; // px
+
         private GraphicsDeviceManager graphicsDeviceManager;
         private SpriteBatch spriteBatch;
         private Simulation.Simulation Simulation;
         private Ui.Ui Ui;
         public SpriteFont Font;
-        private MouseState oldState;
         private Texture2D baseTexture;
         private Configuration.Model.Configuration Configuration;
-
-        // todo: move to configuration
-        private const int GRID_SIZE = 2; // px
+        
+        private MouseState LastMouseState;
+        private KeyboardState LastKeyboardState;
+        
+        private int BrushRadius = 2; // px
 
         public particlexGame()
         {
@@ -46,7 +50,7 @@ namespace particlex.Core
             graphicsDeviceManager.IsFullScreen = false;
             graphicsDeviceManager.PreferredBackBufferWidth = 800;
             graphicsDeviceManager.PreferredBackBufferHeight = 600;
-            graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
+            // graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
             graphicsDeviceManager.ApplyChanges();
             
             base.Initialize();
@@ -83,23 +87,41 @@ namespace particlex.Core
 
         protected override void Update(GameTime gameTime)
         {
-            
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            MouseState newState = Mouse.GetState();
-            int x = newState.X / GRID_SIZE;
-            int y = newState.Y / GRID_SIZE;
+            var keyboardState = Keyboard.GetState();
+            
+            if (keyboardState.IsKeyDown(Keys.OemPlus) && !LastKeyboardState.IsKeyDown(Keys.OemPlus))
+            {
+                BrushRadius++;
+                Console.WriteLine("Brush radius: " + BrushRadius);
+            }
+            
+            if (keyboardState.IsKeyDown(Keys.OemMinus) && !LastKeyboardState.IsKeyDown(Keys.OemMinus))
+            {
+                BrushRadius--;
+                Console.WriteLine("Brush radius: " + BrushRadius);
+            }
+
+            MouseState mouseState = Mouse.GetState();
+            int x = mouseState.X / GRID_SIZE;
+            int y = mouseState.Y / GRID_SIZE;
 
             if (x > 0 && y > 0 && x <= Simulation.Grid.GetWidth() && y <= Simulation.Grid.GetHeight())
             {
-                if (newState.LeftButton == ButtonState.Pressed)
+                if (mouseState.LeftButton == ButtonState.Pressed)
                 {
-                    Simulation.Grid.SetCellType(x, y, Ui.SelectedCellType);
-                    Simulation.Grid.GetCell(x, y).CreatedDateTime = DateTime.Now;
+                    for (int drawX = x - BrushRadius; drawX < x + BrushRadius; drawX++)
+                    {
+                        for (int drawY = y - BrushRadius; drawY < y + BrushRadius; drawY++)
+                        {
+                            Simulation.Grid.SetCellType(drawX, drawY, Ui.SelectedCellType);
+                        }
+                    }
                 }
             
-                if (newState.ScrollWheelValue > oldState.ScrollWheelValue)
+                if (mouseState.ScrollWheelValue > LastMouseState.ScrollWheelValue)
                 {
                     var newCellType = Enum.GetValues(typeof(CellType)).Cast<CellType>()
                         .SkipWhile(e => e != Ui.SelectedCellType).Skip(1).FirstOrDefault();
@@ -113,7 +135,8 @@ namespace particlex.Core
                 }
             }
 
-            oldState = newState;
+            LastMouseState = mouseState;
+            LastKeyboardState = keyboardState;
             
             var watch = System.Diagnostics.Stopwatch.StartNew();
             Simulation.Update();

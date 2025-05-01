@@ -51,6 +51,11 @@ public class Grid()
     
     public void SetCellType(int x, int y, CellType type)
     {
+        if (x < 0 || y < 0 || x > Width - 1 || y > Height - 1)
+        {
+            return;
+        }
+        
         var cell = GetCell(x, y);
         if (cell != null)
         {
@@ -58,6 +63,8 @@ public class Grid()
         }
         
         Rows[y].Cells[x] = new Cell(type);
+        Rows[y].Cells[x].IsProcessed = true;
+        Rows[y].Cells[x].CreatedDateTime = DateTime.Now;
     }
 
     public bool SwapCells(int x, int y, int swapX, int swapY)
