@@ -22,6 +22,8 @@ public class Simulation(int width, int height)
         
         RefreshProcessedStatus();
 
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        
         for (int y = 0; y < Grid.GetHeight(); y++)
         {
             var row = Grid.Rows.ElementAtOrDefault(y);
@@ -101,15 +103,34 @@ public class Simulation(int width, int height)
                 }
             }
         }
+        
+        watch.Stop();
+        // Console.WriteLine("Grid processing time: " + watch.ElapsedMilliseconds + "ms");
+    }
+
+    public void CreateBorder()
+    {
+        for (int x = 0; x < Grid.GetWidth() - 1; x++)
+        {
+            Grid.SetCellType(x, 0, CellType.Solid);
+            Grid.SetCellType(x, Grid.GetHeight() - 1, CellType.Solid);
+        }
+        
+        for (int y = 0; y < Grid.GetHeight() - 1; y++)
+        {
+            Grid.SetCellType(0, y, CellType.Solid);
+            Grid.SetCellType(Grid.GetWidth() - 1, y, CellType.Solid);
+        }
     }
 
     private void RefreshProcessedStatus()
     {
-        for (int x = 0; x < Grid.GetWidth(); x++)
+        for (int y = 0; y < Grid.GetHeight(); y++)
         {
-            for (int y = 0; y < Grid.GetHeight(); y++)
+            var row = Grid.Rows.ElementAtOrDefault(y);
+            for (int x = 0; x < Grid.GetWidth(); x++)
             {
-                var cell = Grid.GetCell(x, y);
+                var cell = row.Cells.ElementAtOrDefault(x);
                 if (cell == null)
                 {
                     continue;

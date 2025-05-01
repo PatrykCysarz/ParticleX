@@ -38,6 +38,7 @@ namespace particlex.Core
             int h = 600 / GRID_SIZE;
 
             Simulation = new Simulation.Simulation(w, h);
+            Simulation.CreateBorder();
         }
 
         protected override void Initialize()
@@ -45,6 +46,7 @@ namespace particlex.Core
             graphicsDeviceManager.IsFullScreen = false;
             graphicsDeviceManager.PreferredBackBufferWidth = 800;
             graphicsDeviceManager.PreferredBackBufferHeight = 600;
+            graphicsDeviceManager.SynchronizeWithVerticalRetrace = false;
             graphicsDeviceManager.ApplyChanges();
             
             base.Initialize();
@@ -81,6 +83,7 @@ namespace particlex.Core
 
         protected override void Update(GameTime gameTime)
         {
+            
             if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
@@ -112,25 +115,30 @@ namespace particlex.Core
 
             oldState = newState;
             
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             Simulation.Update();
+            watch.Stop();
+            // Console.WriteLine("Simulation time: " + watch.ElapsedMilliseconds + "ms");
 
             base.Update(gameTime);
+            
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             
+            GraphicsDevice.Clear(Color.Black);
             spriteBatch.Begin();
 
             for (int x = 0; x < Simulation.Grid.GetWidth(); x++)
             {
                 for (int y = 0; y < Simulation.Grid.GetHeight(); y++)
                 {
-                    var cellType = Simulation.Grid.GetCellType(x, y);
-                    if (cellType != null)
+                    var cell = Simulation.Grid.GetCell(x, y);
+                    if (cell != null)
                     {
-                        var color = Configuration.GetColorForCellType(cellType);
+                        var color = Configuration.GetColorForCellType(cell.Type);
                     
                         spriteBatch.Draw(baseTexture, new Rectangle(GRID_SIZE * x, GRID_SIZE * y, GRID_SIZE, GRID_SIZE), color);
                     }
@@ -146,6 +154,9 @@ namespace particlex.Core
             spriteBatch.End();
 
             base.Draw(gameTime);
+            
+            watch.Stop();
+            // Console.WriteLine("Draw time: " + watch.ElapsedMilliseconds + "ms");
         }
     }
 }

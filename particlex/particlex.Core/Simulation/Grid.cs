@@ -49,17 +49,6 @@ public class Grid()
         row?.Cells.RemoveAt(x);
     }
     
-    public CellType? GetCellType(int x, int y)
-    {
-        var cell = GetCell(x, y);
-        if (cell == null)
-        {
-            return null;
-        }
-        
-        return cell.Type;
-    }
-    
     public void SetCellType(int x, int y, CellType type)
     {
         var cell = GetCell(x, y);
