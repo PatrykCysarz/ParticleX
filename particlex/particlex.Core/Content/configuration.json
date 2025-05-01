@@ -1,0 +1,32 @@
+{
+  "cells": [
+    {
+      "name": "stone",
+      "type": 0,
+      "colorR": 125,
+      "colorG": 125,
+      "colorB": 125
+    },
+    {
+      "name": "water",
+      "type": 1,
+      "colorR": 40,
+      "colorG": 100,
+      "colorB": 170
+    },
+    {
+      "name": "gas",
+      "type": 2,
+      "colorR": 255,
+      "colorG": 0,
+      "colorB": 0
+    },
+    {
+      "name": "sand",
+      "type": 3,
+      "colorR": 170,
+      "colorG": 110,
+      "colorB": 90
+    }
+  ]
+}
